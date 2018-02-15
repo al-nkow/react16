@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
+import Radium, { StyleRoot } from 'radium';
 
 import Person from './Person/Person';
 
@@ -76,14 +77,18 @@ class App extends Component {
         const myStyles = {
             backgroundColor: '#e09b94',
             fontSize: '16px',
-            font: 'Arial',
+            fontFamily: 'Arial',
             padding: '10px',
             borderColor: '#c3776e',
             borderRadius: '4px',
             color: '#333333',
             cursor: 'pointer',
             marginRight: '20px',
-            outline: 'none'
+            outline: 'none',
+            ':hover': {
+                backgroundColor: '#aae056',
+                color: '#000000',
+            }
         };
 
         const newBlockStyle = {
@@ -106,54 +111,70 @@ class App extends Component {
             myStyles.backgroundColor = '#1c5093';
             myStyles.color = '#ffffff';
             myStyles.borderColor = '#243e61';
+            myStyles[':hover'] = {
+                backgroundColor: '#1c5093',
+                color: 'green'
+            }
+        }
+
+        // let classes = ['red', 'bold'].join(' ');
+        let classes = [];
+        if (this.state.persons.length <= 2) {
+            classes.push('red');
+        }
+        if (this.state.persons.length <= 1) {
+            classes.push('bold');
         }
 
         return (
-            <div className="App">
-                <h1>Hello world</h1>
+            <StyleRoot>{/* - оборачиваем, чтобы можно было использовать медиазапросы и трансформации в инлайн стилях*/}
+                <div className="App">
+                    <h1>Hello world</h1>
+                    <p className={ classes.join(' ') }>This is really working</p>
 
-                {/*<button onClick={ this.switchNameHandler.bind(this, 'Petya') }>Switch name</button>*/}
-                <button style={myStyles} onClick={ () => this.switchNameHandler('Petya') }>Switch name</button>
-                {/* Здесь анонимная функция возвращает this.switchNameHandler('Petya') то есть
-                можно писать () => { return this.switchNameHandler('Petya'); } - просто сокращенная запись в строку*/}
+                    {/*<button onClick={ this.switchNameHandler.bind(this, 'Petya') }>Switch name</button>*/}
+                    <button key='q2' style={myStyles} onClick={ () => this.switchNameHandler('Petya') }>Switch name</button>
+                    {/* Здесь анонимная функция возвращает this.switchNameHandler('Petya') то есть
+                    можно писать () => { return this.switchNameHandler('Petya'); } - просто сокращенная запись в строку*/}
 
-                <button style={myStyles} onClick={ this.togglePersonsHandler }> SHOW/HIDE </button>
+                    <button key='q1' style={myStyles} onClick={ this.togglePersonsHandler }> SHOW/HIDE </button>
 
 
-                { this.state.showPersons ?
-                    <div>
+                    { this.state.showPersons ?
+                        <div>
 
-                        {
-                            this.state.persons.map((person, index) => {
-                                return <Person
-                                    myClick={ () => this.deletePersonHandler(index) }
-                                    name={ person.name }
-                                    age={ person.age }
-                                    // key={ index }
-                                    key={ person.id }
-                                    changed={ (event) => this.nameChangeHandler(event, person.id) } />
-                            })
-                        }
+                            {
+                                this.state.persons.map((person, index) => {
+                                    return <Person
+                                        myClick={ () => this.deletePersonHandler(index) }
+                                        name={ person.name }
+                                        age={ person.age }
+                                        // key={ index }
+                                        key={ person.id }
+                                        changed={ (event) => this.nameChangeHandler(event, person.id) } />
+                                })
+                            }
 
-                        {/*<Person name={ this.state.persons[0].name } age={ this.state.persons[0].age } />*/}
-                        {/*<Person*/}
-                            {/*name={ this.state.persons[1].name }*/}
-                            {/*age={ this.state.persons[1].age }*/}
-                            {/*myClick={ this.switchNameHandler.bind(this, 'Vasiliy') }*/}
-                            {/*changed={this.nameChangeHandler}*/}
-                        {/*>My Hobbies: Racing*/}
-                        {/*</Person>*/}
-                        {/*<Person name={ this.state.persons[2].name } age={ this.state.persons[2].age } />*/}
+                            {/*<Person name={ this.state.persons[0].name } age={ this.state.persons[0].age } />*/}
+                            {/*<Person*/}
+                                {/*name={ this.state.persons[1].name }*/}
+                                {/*age={ this.state.persons[1].age }*/}
+                                {/*myClick={ this.switchNameHandler.bind(this, 'Vasiliy') }*/}
+                                {/*changed={this.nameChangeHandler}*/}
+                            {/*>My Hobbies: Racing*/}
+                            {/*</Person>*/}
+                            {/*<Person name={ this.state.persons[2].name } age={ this.state.persons[2].age } />*/}
 
-                        {/*<Person name="Max" age="28" />*/}
-                        {/*<Person name="Oleg" age="29">My Hobbies: Racing</Person>*/}
-                        {/*<Person name="Tolik" age="30" />*/}
-                    </div> : null
-                }
+                            {/*<Person name="Max" age="28" />*/}
+                            {/*<Person name="Oleg" age="29">My Hobbies: Racing</Person>*/}
+                            {/*<Person name="Tolik" age="30" />*/}
+                        </div> : null
+                    }
 
-                { persons } {/* - рекомендуется именно так пользоваться аналогом ng-if */}
+                    { persons } {/* - рекомендуется именно так пользоваться аналогом ng-if */}
 
-            </div>
+                </div>
+            </StyleRoot>
         );
         // То же самое можно получить так:
         // Аргументы: первый элемент, его опции, далее через запятую все дочерние элементы
@@ -161,4 +182,5 @@ class App extends Component {
     }
 }
 
-export default App;
+// export default App;
+export default Radium(App); // Radium - чтобы можно было добавлять псевдоклассы и медиазапросы в инлайновые стили
