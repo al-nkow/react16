@@ -10,11 +10,22 @@ class App extends Component {
     // если state меняется - DOM перерисовывается
     state = {
         persons: [
-            { name: 'Max', age: 28 },
-            { name: 'Oleg', age: 29 },
-            { name: 'Tolik', age: 30 }
+            { id: 'dg4hfyf78j4', name: 'Max', age: 28 },
+            { id: 'fgfghrr749j', name: 'Oleg', age: 29 },
+            { id: '0493hhd3msn', name: 'Tolik', age: 30 }
         ],
-        otherState: 'some other value'
+        otherState: 'some other value',
+        showPersons: false,
+    };
+
+    // delete element by clicking on it
+    deletePersonHandler = (personIndex) => {
+        // const persons = this.state.persons // - так делать нельзя!!!! надо создавать копию!!!
+        // так как массивы и объекты - это ссылочные типы - нам нужно создать копию массива перед манипуляциями!
+        const persons = this.state.persons.slice(); // так создается копия массива (пустой .slice())
+        // const persons = [...this.state.persons]; - еще один вариант создания копии массива!
+        persons.splice(personIndex, 1);
+        this.setState({persons: persons});
     };
 
     switchNameHandler = (newName) => {
@@ -29,18 +40,38 @@ class App extends Component {
         });
     };
 
-    nameChangeHandler = (event) => {
-        this.setState({
-            persons: [
-                { name: 'Max', age: 28 },
-                { name: event.target.value, age: 29 },
-                { name: 'Tolik', age: 30 }
-            ]
+    // nameChangeHandler = (event) => {
+    //     this.setState({
+    //         persons: [
+    //             { name: 'Max', age: 28 },
+    //             { name: event.target.value, age: 29 },
+    //             { name: 'Tolik', age: 30 }
+    //         ]
+    //     });
+    // };
+    nameChangeHandler = (event, id) => {
+        const personIndex = this.state.persons.findIndex(p => {
+           return p.id === id;
         });
+        const person = { ...this.state.persons[personIndex] }; // создаем копию объекта
+        // const person = Object.assign({}, this.state.persons[personIndex]); - или так копию делаем
+        person.name = event.target.value;
+
+        const persons = [...this.state.persons];
+        persons[personIndex] = person;
+
+        this.setState({ persons: persons });
+    };
+
+    togglePersonsHandler = () => {
+        const doesShow = this.state.showPersons;
+        this.setState({ showPersons: !doesShow });
     };
 
     // события которые можно слушать https://reactjs.org/docs/events.html#supported-events
-    render() {
+    render() { // render выполняется при каждой смене стейта!
+
+        console.log('rendered!');
 
         const myStyles = {
             backgroundColor: '#e09b94',
@@ -50,8 +81,32 @@ class App extends Component {
             borderColor: '#c3776e',
             borderRadius: '4px',
             color: '#333333',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            marginRight: '20px',
+            outline: 'none'
         };
+
+        const newBlockStyle = {
+            border: '2px solid #597089',
+            color: '#597089',
+            width: '200px',
+            height: '100px',
+            padding: '10px',
+            margin: '20px auto',
+        };
+
+        // аналог ng-if
+        let persons = null;
+        if (this.state.showPersons) {
+            persons = (<div>
+                <div style={newBlockStyle}> new person </div>
+                <div style={newBlockStyle}> new person </div>
+                <div style={newBlockStyle}> new person </div>
+            </div>);
+            myStyles.backgroundColor = '#1c5093';
+            myStyles.color = '#ffffff';
+            myStyles.borderColor = '#243e61';
+        }
 
         return (
             <div className="App">
@@ -62,20 +117,42 @@ class App extends Component {
                 {/* Здесь анонимная функция возвращает this.switchNameHandler('Petya') то есть
                 можно писать () => { return this.switchNameHandler('Petya'); } - просто сокращенная запись в строку*/}
 
-                <Person name={ this.state.persons[0].name } age={ this.state.persons[0].age } />
+                <button style={myStyles} onClick={ this.togglePersonsHandler }> SHOW/HIDE </button>
 
-                <Person
-                    name={ this.state.persons[1].name }
-                    age={ this.state.persons[1].age }
-                    myClick={ this.switchNameHandler.bind(this, 'Vasiliy') }
-                    changed={this.nameChangeHandler}
-                    >My Hobbies: Racing
-                </Person>
 
-                <Person name={ this.state.persons[2].name } age={ this.state.persons[2].age } />
-                {/*<Person name="Max" age="28" />*/}
-                {/*<Person name="Oleg" age="29">My Hobbies: Racing</Person>*/}
-                {/*<Person name="Tolik" age="30" />*/}
+                { this.state.showPersons ?
+                    <div>
+
+                        {
+                            this.state.persons.map((person, index) => {
+                                return <Person
+                                    myClick={ () => this.deletePersonHandler(index) }
+                                    name={ person.name }
+                                    age={ person.age }
+                                    // key={ index }
+                                    key={ person.id }
+                                    changed={ (event) => this.nameChangeHandler(event, person.id) } />
+                            })
+                        }
+
+                        {/*<Person name={ this.state.persons[0].name } age={ this.state.persons[0].age } />*/}
+                        {/*<Person*/}
+                            {/*name={ this.state.persons[1].name }*/}
+                            {/*age={ this.state.persons[1].age }*/}
+                            {/*myClick={ this.switchNameHandler.bind(this, 'Vasiliy') }*/}
+                            {/*changed={this.nameChangeHandler}*/}
+                        {/*>My Hobbies: Racing*/}
+                        {/*</Person>*/}
+                        {/*<Person name={ this.state.persons[2].name } age={ this.state.persons[2].age } />*/}
+
+                        {/*<Person name="Max" age="28" />*/}
+                        {/*<Person name="Oleg" age="29">My Hobbies: Racing</Person>*/}
+                        {/*<Person name="Tolik" age="30" />*/}
+                    </div> : null
+                }
+
+                { persons } {/* - рекомендуется именно так пользоваться аналогом ng-if */}
+
             </div>
         );
         // То же самое можно получить так:
