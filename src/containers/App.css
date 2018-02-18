@@ -1,0 +1,19 @@
+.App {
+    text-align: center;
+}
+.navigate {
+    margin-bottom: 20px;
+}
+.navigate li {
+    display: inline-block;
+    padding: 10px;
+    margin: 10px;
+    cursor: pointer;
+}
+.navigate li a {
+    text-decoration: none;
+    color: #333333;
+}
+.navigate li a:hover {
+    color: red;
+}
